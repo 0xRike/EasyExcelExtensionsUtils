@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  */
 public class ExcelFileCellMergeStrategy implements WorkbookWriteHandler {
 
-  private final Map<Integer, Integer> mergeMap = new HashMap<>();
   private final Map<Integer, List<String>> keywordMap = new HashMap<>();
 
   /**
@@ -33,9 +32,7 @@ public class ExcelFileCellMergeStrategy implements WorkbookWriteHandler {
    */
   @Override
   public void afterWorkbookDispose(WriteWorkbookHolder writeWorkbookHolder) {
-    writeWorkbookHolder.getHasBeenInitializedSheetIndexMap().forEach((k, v) -> {
-      execMerge(v.getSheet(), v.getClazz(), v.getExcelWriteHeadProperty().getHeadMap());
-    });
+    writeWorkbookHolder.getHasBeenInitializedSheetIndexMap().forEach((k, v) -> execMerge(v.getSheet(), v.getClazz(), v.getExcelWriteHeadProperty().getHeadMap()));
   }
 
   /**
@@ -52,8 +49,6 @@ public class ExcelFileCellMergeStrategy implements WorkbookWriteHandler {
       Head head = iterator.next().getValue();
       Field field = ReflectUtil.getField(clazz, head.getFieldName());
       if (field.isAnnotationPresent(ExcelProperty.class) && field.isAnnotationPresent(ExcelCellMerge.class)) {
-        // todo 将这里的 1 换成headRowNumber
-//        mergeMap.put(head.getColumnIndex(), 1);
         keywordMap.put(head.getColumnIndex(), Arrays.stream(field.getDeclaredAnnotation(ExcelCellMerge.class).keywords()).filter(StrUtil::isNotEmpty).collect(Collectors.toList()));
       } else {
         iterator.remove();
